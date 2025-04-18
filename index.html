@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Hey Friend! 🎉</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    body {
+      margin: 0;
+      background: linear-gradient(135deg, #ffecd2, #fcb69f, #ff9a9e);
+      background-size: 400% 400%;
+      animation: gradientBG 15s ease infinite;
+      font-family: 'Segoe UI', sans-serif;
+      overflow: hidden;
+    }
+
+    @keyframes gradientBG {
+      0% {background-position: 0% 50%;}
+      50% {background-position: 100% 50%;}
+      100% {background-position: 0% 50%;}
+    }
+
+    .glass {
+      background: rgba(255, 255, 255, 0.2);
+      backdrop-filter: blur(14px);
+      -webkit-backdrop-filter: blur(14px);
+      border-radius: 20px;
+      padding: 40px;
+      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+      border: 1px solid rgba(255, 255, 255, 0.3);
+      max-width: 400px;
+      margin: auto;
+    }
+
+    .fade-in {
+      animation: fadeIn 1s ease forwards;
+      opacity: 0;
+      transform: translateY(30px);
+    }
+
+    @keyframes fadeIn {
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    .heart {
+      position: absolute;
+      color: #ff6b81;
+      animation: float 6s infinite ease-in-out;
+      pointer-events: none;
+      user-select: none;
+    }
+
+    @keyframes float {
+      0% { transform: translateY(0) rotate(0deg); opacity: 1; }
+      100% { transform: translateY(-100vh) rotate(720deg); opacity: 0; }
+    }
+
+    .btn {
+      display: inline-block;
+      margin-top: 40px;
+      padding: 12px 24px;
+      background: #ff758c;
+      color: white;
+      font-weight: bold;
+      border: none;
+      border-radius: 30px;
+      cursor: pointer;
+      box-shadow: 0 8px 16px rgba(0,0,0,0.1);
+      transition: all 0.3s ease;
+      font-size: 1em;
+    }
+
+    .btn:hover {
+      background: #ff5b71;
+      transform: translateY(-2px);
+    }
+
+    .lavender-text {
+      color: #9b59b6;
+    }
+
+    /* Hide both initially */
+    #formPage, #greetingPage {
+      display: none;
+    }
+  </style>
+</head>
+<body class="flex items-center justify-center min-h-screen text-center">
+
+  <!-- Form Page -->
+  <div id="formPage" class="glass fade-in space-y-6">
+    <h1 class="text-3xl font-bold text-white drop-shadow">🔐 Age Verification</h1>
+    <p class="text-white/80">Please enter your birthdate to continue</p>
+
+    <form id="dobForm" class="space-y-5">
+      <input
+        type="date"
+        name="Birthday"
+        id="dobInput"
+        required
+        class="w-full px-4 py-2 rounded-xl border border-white/30 bg-white/20 text-white placeholder-white focus:outline-none focus:ring-2 focus:ring-pink-300"
+      />
+      <button
+        type="submit"
+        class="w-full bg-pink-500 text-white font-semibold px-4 py-2 rounded-xl hover:bg-pink-600 transition shadow-lg"
+      >
+        Continue ➤
+      </button>
+    </form>
+
+    <p class="text-xs text-white/60">We don’t store your data. Pinky promise 💖</p>
+  </div>
+
+  <!-- Greeting Page -->
+  <div id="greetingPage" class="fade-in absolute inset-0 flex-col items-center justify-center px-4 text-white">
+    <h1 class="text-5xl font-bold bg-gradient-to-r from-pink-400 to-red-400 bg-clip-text text-transparent mb-6">🎉 You're In!</h1>
+    <p class="text-lg max-w-2xl leading-relaxed lavender-text">
+      Just wanted to say... you're an <strong>amazing human</strong> and a truly special friend, <br>NONI!<br> 😊<br><br>
+      Hope this little surprise made you smile. The world’s brighter with you in it! ✨
+    </p>
+    <button class="btn" id="resetBtn">🥰 Awww, Thanks!</button>
+  </div>
+
+  <!-- Confetti Script -->
+  <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.5.1/dist/confetti.browser.min.js"></script>
+
+  <!-- Script Logic -->
+  <script>
+    const form = document.getElementById("dobForm");
+    const formPage = document.getElementById("formPage");
+    const greetingPage = document.getElementById("greetingPage");
+
+    // Show correct section on load
+    window.addEventListener("DOMContentLoaded", () => {
+      if (localStorage.getItem("birthdaySubmitted") === "true") {
+        greetingPage.style.display = "flex";
+        launchEffects();
+      } else {
+        formPage.style.display = "block";
+      }
+    });
+
+    form.addEventListener("submit", function (e) {
+      e.preventDefault();
+      const dob = document.getElementById("dobInput").value;
+
+      // Send to FormSubmit
+      fetch("https://formsubmit.co/ajax/maitydhiman571@gmail.com", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          Birthday: dob,
+          _captcha: false,
+          _subject: "New Birthday Collected!"
+        })
+      }).then(response => {
+        if (response.ok) {
+          localStorage.setItem("birthdaySubmitted", "true");
+          formPage.style.display = "none";
+          greetingPage.style.display = "flex";
+          launchEffects();
+        } else {
+          alert("Oops! Something went wrong.");
+        }
+      });
+    });
+
+    function launchEffects() {
+      // Confetti
+      const duration = 3000;
+      const animationEnd = Date.now() + duration;
+      const defaults = { startVelocity: 30, spread: 360, ticks: 60, zIndex: 1000 };
+
+      function randomInRange(min, max) {
+        return Math.random() * (max - min) + min;
+      }
+
+      const confettiInterval = setInterval(() => {
+        const timeLeft = animationEnd - Date.now();
+        if (timeLeft <= 0) return clearInterval(confettiInterval);
+        const particleCount = 50 * (timeLeft / duration);
+        confetti(Object.assign({}, defaults, {
+          particleCount,
+          origin: { x: randomInRange(0.1, 0.9), y: Math.random() - 0.2 }
+        }));
+      }, 250);
+
+      // Hearts
+      const hearts = ["💖", "💕", "💓", "💗", "💘", "💝", "💞"];
+      for (let i = 0; i < 40; i++) {
+        const heart = document.createElement("div");
+        heart.className = "heart";
+        heart.style.left = Math.random() * 100 + "vw";
+        heart.style.animationDuration = (4 + Math.random() * 5) + "s";
+        heart.style.fontSize = (18 + Math.random() * 24) + "px";
+        heart.innerText = hearts[Math.floor(Math.random() * hearts.length)];
+        document.body.appendChild(heart);
+      }
+    }
+    
+    document.getElementById("resetBtn").addEventListener("click", () => {
+        localStorage.removeItem("birthdaySubmitted");
+        location.reload(); // Refreshes the page to show the form again
+      });
+      
+  </script>
+</body>
+</html>
